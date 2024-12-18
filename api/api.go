@@ -358,7 +358,6 @@ func NewAPI(appCtx app.Context) *API {
 	docs.SwaggerInfo.BasePath = etre.API_ROOT
 	api.echo.GET("/apidocs/*", echoSwagger.WrapHandler)
 
-
 	api.echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			if err := next(c); err != nil {
@@ -1046,7 +1045,8 @@ func (api *API) changesHandler(c echo.Context) error {
 		caller = v.(auth.Caller)
 	}
 
-	clientId := fmt.Sprintf("%s@%s", caller.Name, c.Request().RemoteAddr)
+	customClientId := c.Request().Header.Get("etre-cdc-client-id")
+	clientId := fmt.Sprintf("%s:%s@%s", customClientId, caller.Name, c.Request().RemoteAddr)
 	log.Printf("CDC: %s: connected", clientId)
 
 	stream := api.streamFactory.Make(clientId)
